@@ -135,6 +135,7 @@
 	      </div>
 	    </div>
 	  </nav>
+	  
 	  <section id="home-section" class="hero">
 		  <div class="home-slider  owl-carousel">
 	       <div class="slider-item ">
@@ -199,7 +200,58 @@
 		</div>
     </section>
 
-
+	<script>
+		document.addEventListener('DOMContentLoaded', (event) => {
+		  console.log('DOM fully loaded and parsed');
+		  
+		  // Check for browser support for Web Speech API
+		  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+		  if (SpeechRecognition) {
+			let recognition = new SpeechRecognition();
+			recognition.lang = 'en-US';
+			recognition.interimResults = false;
+			recognition.maxAlternatives = 1;
+	
+			// Start recognition
+			recognition.start();
+	
+			// Process the result when speech is recognized
+			recognition.onresult = (event) => {
+			  console.log('Voice recognition result received');
+			  const transcript = event.results[0][0].transcript.toLowerCase().trim();
+			  console.log('Recognized speech:', transcript);
+	
+			  if (transcript.includes('home')) {
+				location.hash = '#home-section';
+			  } else if (transcript.includes('about')) {
+				location.hash = '#about-section';
+			  } else if (transcript.includes('resume')) {
+				location.hash = '#resume-section';
+			  } else if (transcript.includes('projects')) {
+				location.hash = '#project-section';
+			  } else if (transcript.includes('contact')) {
+				location.hash = '#contact-section';
+			  } else if (transcript.includes('stop listening')) {
+				recognition.stop(); // Stop recognition
+				console.log('Stopped listening');
+			  } else {
+				alert('Command not recognized!');
+				console.log('Command not recognized');
+			  }
+	
+			  // Restart recognition after a short delay
+			  setTimeout(() => {
+				if (!recognition.aborted) { // Check if recognition is not manually stopped
+				  recognition.start();
+				}
+			  }, 100);
+			};
+		  } else {
+			alert('Speech recognition not supported in this browser.');
+			console.log('Speech recognition not supported in this browser.');
+		  }
+		});
+	  </script>
 
     <section class="ftco-about img ftco-section ftco-no-pb" id="about-section">
     	<div class="container">
@@ -307,8 +359,6 @@
 			</div>
 		</div>
     </section>
-
-
 
 	
     <section class="ftco-section ftco-no-pb" id="resume-section">
