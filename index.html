@@ -201,78 +201,86 @@
     </section>
 
 	<script>
-		// Initialize SpeechRecognition
-		const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-		recognition.continuous = true;
-		recognition.interimResults = false;
-		recognition.lang = 'en-US';
-	
-		let isListening = true;
-	
-		// Function to provide voice feedback
-		function speak(text) {
-		  const utterance = new SpeechSynthesisUtterance(text);
-		  window.speechSynthesis.speak(utterance);
-		}
-	
-		// Function to navigate to sections
-		function navigateToSection(sectionId) {
-		  document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
-		  speak(`Navigating to ${sectionId.replace('-section', '')}`);
-		}
-	
-		// Start speech recognition
-		recognition.start();
-	
-		// Handle recognition results
-		recognition.onresult = (event) => {
-		  const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-		  console.log('Recognized speech:', transcript);
-	
-		  if (transcript.includes('home')) {
-			navigateToSection('home-section');
-		  } else if (transcript.includes('about')) {
-			navigateToSection('about-section');
-		  } else if (transcript.includes('resume')) {
-			navigateToSection('resume-section');
-		  } else if (transcript.includes('projects')) {
-			navigateToSection('project-section');
-		  } else if (transcript.includes('contact')) {
-			navigateToSection('contact-section');
-		  } else if (transcript.includes('stop listening')) {
-			isListening = false;
-			recognition.stop();
-			speak('Stopping recognition');
-		  } else {
-			speak('Command not recognized!');
-			console.log('Command not recognized');
-		  }
-		};
-	
-		// Restart recognition if it stops unexpectedly
-		recognition.onend = () => {
-		  if (isListening) {
-			setTimeout(() => {
-			  recognition.start();
-			}, 100);
-		  }
-		};
-	
-		// Handle recognition errors
-		recognition.onerror = (event) => {
-		  console.error('Speech recognition error:', event.error);
-		  if (isListening) {
-			setTimeout(() => {
-			  recognition.start();
-			}, 100);
-		  }
-		};
-		
-		window.onload = () => {
-      		speak('Speak to redirect to Home, About, Resume, Projects, and Contact.');
-    	};
+        let recognition;
+        let isListening = true;
 
-	  </script>
+        // Function to provide voice feedback
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Function to navigate to sections
+        function navigateToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+            speak(`Navigating to ${sectionId.replace('-section', '')}`);
+        }
+
+        // Function to start speech recognition
+        function startRecognition() {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+                console.log('Recognized speech:', transcript);
+
+                if (transcript.includes('home')) {
+                    navigateToSection('home-section');
+                } else if (transcript.includes('about')) {
+                    navigateToSection('about-section');
+                } else if (transcript.includes('resume')) {
+                    navigateToSection('resume-section');
+                } else if (transcript.includes('projects')) {
+                    navigateToSection('project-section');
+                } else if (transcript.includes('contact')) {
+                    navigateToSection('contact-section');
+                } else if (transcript.includes('stop listening')) {
+                    isListening = false;
+                    recognition.stop();
+                    speak('Stopping recognition');
+                } else {
+                    speak('Command not recognized!');
+                    console.log('Command not recognized');
+                }
+            };
+
+            recognition.onend = () => {
+                if (isListening) {
+                    setTimeout(() => {
+                        recognition.start();
+                    }, 100);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (isListening) {
+                    setTimeout(() => {
+                        recognition.start();
+                    }, 100);
+                }
+            };
+
+            recognition.start();
+        }
+
+        // Initialize voice commands on window load
+        window.onload = () => {
+            try {
+                speak('Speak to redirect to Home, About, Resume, Projects, and Contact.');
+                startRecognition();
+            } catch (e) {
+                console.error('Error starting speech recognition or synthesis:', e);
+                document.body.addEventListener('click', () => {
+                    speak('Speak to redirect to Home, About, Resume, Projects, and Contact.');
+                    startRecognition();
+                }, { once: true });
+            }
+        };
+    </script>
 
     <section class="ftco-about img ftco-section ftco-no-pb" id="about-section">
     	<div class="container">
