@@ -160,7 +160,7 @@
 
 						// Create an array of typing text
 						const typingTexts = [
-						'Engineer  ',
+						'Engineer  and ',
 						'Software Developer  ',
 						];
 
@@ -201,56 +201,77 @@
     </section>
 
 	<script>
-		document.addEventListener('DOMContentLoaded', (event) => {
-		  console.log('DOM fully loaded and parsed');
-		  
-		  // Check for browser support for Web Speech API
-		  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-		  if (SpeechRecognition) {
-			let recognition = new SpeechRecognition();
-			recognition.lang = 'en-US';
-			recognition.interimResults = false;
-			recognition.maxAlternatives = 1;
+		// Initialize SpeechRecognition
+		const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+		recognition.continuous = true;
+		recognition.interimResults = false;
+		recognition.lang = 'en-US';
 	
-			// Start recognition
-			recognition.start();
+		let isListening = true;
 	
-			// Process the result when speech is recognized
-			recognition.onresult = (event) => {
-			  console.log('Voice recognition result received');
-			  const transcript = event.results[0][0].transcript.toLowerCase().trim();
-			  console.log('Recognized speech:', transcript);
+		// Function to provide voice feedback
+		function speak(text) {
+		  const utterance = new SpeechSynthesisUtterance(text);
+		  window.speechSynthesis.speak(utterance);
+		}
 	
-			  if (transcript.includes('home')) {
-				location.hash = '#home-section';
-			  } else if (transcript.includes('about')) {
-				location.hash = '#about-section';
-			  } else if (transcript.includes('resume')) {
-				location.hash = '#resume-section';
-			  } else if (transcript.includes('projects')) {
-				location.hash = '#project-section';
-			  } else if (transcript.includes('contact')) {
-				location.hash = '#contact-section';
-			  } else if (transcript.includes('stop listening')) {
-				recognition.stop(); // Stop recognition
-				console.log('Stopped listening');
-			  } else {
-				alert('Command not recognized!');
-				console.log('Command not recognized');
-			  }
+		// Function to navigate to sections
+		function navigateToSection(sectionId) {
+		  document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+		  speak(`Navigating to ${sectionId.replace('-section', '')}`);
+		}
 	
-			  // Restart recognition after a short delay
-			  setTimeout(() => {
-				if (!recognition.aborted) { // Check if recognition is not manually stopped
-				  recognition.start();
-				}
-			  }, 100);
-			};
+		// Start speech recognition
+		recognition.start();
+	
+		// Handle recognition results
+		recognition.onresult = (event) => {
+		  const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+		  console.log('Recognized speech:', transcript);
+	
+		  if (transcript.includes('home')) {
+			navigateToSection('home-section');
+		  } else if (transcript.includes('about')) {
+			navigateToSection('about-section');
+		  } else if (transcript.includes('resume')) {
+			navigateToSection('resume-section');
+		  } else if (transcript.includes('projects')) {
+			navigateToSection('project-section');
+		  } else if (transcript.includes('contact')) {
+			navigateToSection('contact-section');
+		  } else if (transcript.includes('stop listening')) {
+			isListening = false;
+			recognition.stop();
+			speak('Stopping recognition');
 		  } else {
-			alert('Speech recognition not supported in this browser.');
-			console.log('Speech recognition not supported in this browser.');
+			speak('Command not recognized!');
+			console.log('Command not recognized');
 		  }
-		});
+		};
+	
+		// Restart recognition if it stops unexpectedly
+		recognition.onend = () => {
+		  if (isListening) {
+			setTimeout(() => {
+			  recognition.start();
+			}, 100);
+		  }
+		};
+	
+		// Handle recognition errors
+		recognition.onerror = (event) => {
+		  console.error('Speech recognition error:', event.error);
+		  if (isListening) {
+			setTimeout(() => {
+			  recognition.start();
+			}, 100);
+		  }
+		};
+		
+		window.onload = () => {
+      		speak('Speak to redirect to Home, About, Resume, Projects, and Contact.');
+    	};
+
 	  </script>
 
     <section class="ftco-about img ftco-section ftco-no-pb" id="about-section">
@@ -264,7 +285,7 @@
 								<div class="row">
 									<div class="col-sm-6 col-md-5">
 									  <div class="about-img">
-										<img src="images/srk.jpeg" class="img-fluid rounded b-shadow-a" alt="">
+										<img src="images/s.jpeg" class="img-fluid rounded b-shadow-a" alt="">
 									  </div>
 									</div>
 									<!-- Details next to profile image -->
@@ -443,7 +464,7 @@
 
     		<div class="row justify-content-center mt-5">
     			<div class="col-md-6 text-center ftco-animate">
-    				<p><a href="https://drive.google.com/file/d/1EdvDNvc1rlaZRV-JAxpa9PLHmHojgfAt/view?usp=drive_link" class="btn btn-primary py-4 px-5">Download CV</a></p>
+    				<p><a href="https://drive.google.com/file/d/1OxHANruSsfZ9PYYPnNK3B4PU7_MprGmr/view?usp=drivesdk" class="btn btn-primary py-4 px-5">Download CV</a></p>
     			</div>
     		</div>
     	</div>
